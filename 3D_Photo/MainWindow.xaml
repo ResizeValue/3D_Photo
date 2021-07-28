@@ -38,7 +38,7 @@
         <Menu>
             <MenuItem Header="Открыть папку" Height="30" BorderBrush="DarkGray"
                       BorderThickness="1,0,1,0" VerticalContentAlignment="Center"
-                      FontSize="16" Click="MenuItem_Click"></MenuItem>
+                      FontSize="16" Click="OpenFolder_Click"></MenuItem>
             <MenuItem x:Name="export_HTML" Header="Экспорт в HTML"  Height="30" BorderThickness="0,0,1,0"
                       FontSize="16" BorderBrush="DarkGray" Click="export_HTML_Click"></MenuItem>
         </Menu>
@@ -59,7 +59,7 @@
                         Height="30" FontSize="18" Content="Открыть"
                         Panel.ZIndex="1"
                         VerticalAlignment="Top"
-                        Click="MenuItem_Click"/>
+                        Click="OpenFolder_Click"/>
                 <TextBlock x:Name="no_photo"
                            Grid.Row="1" Panel.ZIndex="1"
                            VerticalAlignment="Center"
@@ -80,7 +80,8 @@
                                FontSize="24">Предпросмотр</TextBlock>
                 <Border BorderThickness="0,1,0,0" Grid.Row="1" BorderBrush="Gray">
                     <Grid>
-                    <Image HorizontalAlignment="Center" x:Name="img"
+                       
+                        <Image HorizontalAlignment="Center" x:Name="img"
                        MouseLeftButtonDown="img_MouseLeftButtonDown"
                        MouseLeftButtonUp="img_MouseLeftButtonUp"
                        MouseMove="img_MouseMove"
@@ -115,10 +116,46 @@
                     <StackPanel Margin="5">
                         <TextBlock FontSize="16" HorizontalAlignment="Center" 
                                TextWrapping="Wrap">Авто вращение</TextBlock>
-                        <CheckBox x:Name="auto_scroll" HorizontalAlignment="Center"
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Border x:Name="left_scroll"
+                                    Margin="5,5,10,5" 
+                                    Width="80"
+                                    Height="40"
+                                    Tag=""
+                                    BorderThickness="1"
+                                    BorderBrush="Gray"
+                                    Background="Transparent"
+                                    HorizontalAlignment="Stretch"
+                                    MouseEnter="btn_scroll_MouseEnter"
+                                    MouseLeave="btn_scroll_MouseLeave"
+                                    MouseLeftButtonUp="btn_scroll_Click">
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="18"
+                                           Text="Left"/>
+                            </Border>
+                            <Border x:Name="right_scroll" 
+                                    Margin="10,5,5,5"
+                                   Width="80"
+                                    Height="40"
+                                    Tag=""
+                                    BorderThickness="1"
+                                    BorderBrush="Gray"
+                                    HorizontalAlignment="Center"
+                                    Background="Transparent"
+                                    MouseEnter="btn_scroll_MouseEnter"
+                                    MouseLeave="btn_scroll_MouseLeave"
+                                    MouseLeftButtonUp="btn_scroll_Click">
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="18"
+                                           Text="Right"/>
+                            </Border>
+                        </StackPanel>
+                        <!--<CheckBox x:Name="auto_scroll" HorizontalAlignment="Center"
                               Checked="auto_scroll_Checked"
                               Unchecked="auto_scroll_Unchecked"
-                              Margin="0,10,0,0"/>
+                              Margin="0,10,0,0"/>-->
                     </StackPanel>
                 </Border>
             </Grid>

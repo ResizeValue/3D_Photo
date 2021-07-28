@@ -12,7 +12,7 @@ namespace _3D_Photo
 
         string script;
 
-        void Generate_Script(List<Photo_> photos)
+        void Generate_Script(List<Photo_> photos, double sens)
         {
             string photos_string = "";
             foreach (var photo in photos)
@@ -32,7 +32,7 @@ namespace _3D_Photo
 
                                 let x = 0;
 
-                                var sens = 5;
+                                var sens = {sens};
 
                                 let point = null;
                                 function stopDrag(){{
@@ -97,9 +97,9 @@ namespace _3D_Photo
                         </body>";
         }
 
-        public void Write_To_File(string path, List<Photo_> photos)
+        public void Write_To_File(string path, List<Photo_> photos, double sens)
         {
-            Generate_Script(photos);
+            Generate_Script(photos, sens);
             File.WriteAllText(path, script);
         }
     }
