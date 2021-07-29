@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_3D_Photo"
         mc:Ignorable="d"
-        Title="Title" Height="450" Width="800">
+        Title="Wolf Griman 3Dex" MinHeight="500" MinWidth="800">
     <Window.Resources>
         <Style x:Key="images_item_container" TargetType="ListBoxItem">
             <Setter Property="Background" Value="LightGray"/>
@@ -34,6 +34,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition/>
+            <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         <Menu>
             <MenuItem Header="Открыть папку" Height="30" BorderBrush="DarkGray"
@@ -108,8 +109,14 @@
                     <StackPanel Margin="5">
                         <TextBlock FontSize="16" HorizontalAlignment="Center" 
                                TextWrapping="Wrap">Чувствительность</TextBlock>
-                        <TextBox Margin="0,10,0,0" Width="30"
-                                 HorizontalContentAlignment="Center">5</TextBox>
+                        <TextBlock HorizontalAlignment="Center"
+                                   FontSize="16" Text="50"
+                                   Name="sens_tb"/>
+                        <Slider x:Name="sens_bar"  Margin="10,0,10,0"
+                                ValueChanged="sens_bar_ValueChanged"
+                                Minimum="1" Maximum="100"
+                                Value="50"/>
+                       
                     </StackPanel>
                 </Border>
                 <Border Grid.Row="2" BorderThickness="1,0,1,1" Width="auto" VerticalAlignment="Center" BorderBrush="Gray">
@@ -160,5 +167,8 @@
                 </Border>
             </Grid>
         </Grid>
+        <StatusBar Grid.Row="2">
+            <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.0</StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>
