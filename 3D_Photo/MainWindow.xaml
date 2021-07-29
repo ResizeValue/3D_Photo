@@ -70,7 +70,7 @@
                 <ListBox x:Name="images_box" ItemsSource="{Binding}"
                          ItemContainerStyle="{StaticResource images_item_container}"
                          Grid.Row="1">
-                    </ListBox>
+                </ListBox>
             </Grid>
             <Grid Grid.Column="1" Margin="20">
                 <Grid.RowDefinitions>
@@ -81,14 +81,14 @@
                                FontSize="24">Предпросмотр</TextBlock>
                 <Border BorderThickness="0,1,0,0" Grid.Row="1" BorderBrush="Gray">
                     <Grid>
-                       
+
                         <Image HorizontalAlignment="Center" x:Name="img"
                        MouseLeftButtonDown="img_MouseLeftButtonDown"
                        MouseLeftButtonUp="img_MouseLeftButtonUp"
                        MouseMove="img_MouseMove"
                        MouseLeave="img_MouseLeave"
                        />
-                       <TextBlock
+                        <TextBlock
                            x:Name="no_active_model_tb"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -116,7 +116,7 @@
                                 ValueChanged="sens_bar_ValueChanged"
                                 Minimum="1" Maximum="100"
                                 Value="50"/>
-                       
+
                     </StackPanel>
                 </Border>
                 <Border Grid.Row="2" BorderThickness="1,0,1,1" Width="auto" VerticalAlignment="Center" BorderBrush="Gray">
@@ -136,10 +136,7 @@
                                     MouseEnter="btn_scroll_MouseEnter"
                                     MouseLeave="btn_scroll_MouseLeave"
                                     MouseLeftButtonUp="btn_scroll_Click">
-                                <TextBlock HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           FontSize="18"
-                                           Text="Left"/>
+                                <Image Source="Resources/left_arr.png"/>
                             </Border>
                             <Border x:Name="right_scroll" 
                                     Margin="10,5,5,5"
@@ -153,10 +150,16 @@
                                     MouseEnter="btn_scroll_MouseEnter"
                                     MouseLeave="btn_scroll_MouseLeave"
                                     MouseLeftButtonUp="btn_scroll_Click">
-                                <TextBlock HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           FontSize="18"
-                                           Text="Right"/>
+                                <Image Source="Resources/left_arr.png" RenderTransformOrigin="0.5,0.5" >
+                                    <Image.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleY="1" ScaleX="-1"/>
+                                            <SkewTransform AngleY="0" AngleX="0"/>
+                                            <RotateTransform Angle="0"/>
+                                            <TranslateTransform/>
+                                        </TransformGroup>
+                                    </Image.RenderTransform>
+                                </Image>
                             </Border>
                         </StackPanel>
                         <!--<CheckBox x:Name="auto_scroll" HorizontalAlignment="Center"

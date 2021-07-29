@@ -109,10 +109,10 @@ namespace _3D_Photo
                                     stop_Auto_Scroll();
                                     document.getElementById(""auto_text"").style.color = ""blue"";
                                     if(event.currentTarget.id == ""left""){{
-                                        autoScrollDirection = -1;
+                                        autoScrollDirection = 1;
                                     }}
                                     else{{
-                                        autoScrollDirection = 1;
+                                        autoScrollDirection = -1;
                                     }}
                                     IsScroll = true;
                                     auto_scroll_timer = setInterval(()=>{{
@@ -192,7 +192,7 @@ namespace _3D_Photo
                                 }}
                                 @media screen and (max-width: 400px) {{
                                     #main_img{{
-                                        width: 300px;
+                                        width: 100%;
                                     }}
                                 }}
                                 @media screen and (max-height: 800px) {{
