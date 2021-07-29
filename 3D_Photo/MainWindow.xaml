@@ -171,7 +171,7 @@
             </Grid>
         </Grid>
         <StatusBar Grid.Row="2">
-            <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.0</StatusBarItem>
+            <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.1</StatusBarItem>
         </StatusBar>
     </Grid>
 </Window>

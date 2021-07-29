@@ -17,6 +17,7 @@ using System.IO;
 using System.Windows.Threading;
 using System.Threading;
 using MessageBox = System.Windows.MessageBox;
+using System.Text.RegularExpressions;
 
 namespace _3D_Photo
 {
@@ -64,19 +65,31 @@ namespace _3D_Photo
             try
             {
                 DirectoryInfo info = new DirectoryInfo(path);
-
+                string pattern = "([0-9]+)$";
                 foreach (var file in info.GetFiles())
                 {
-                    if (file.Name[0] == '0' && file.Name[1] == '_')
+
+                    string[] tmp = file.Name.Split(new Char[] { '.' });
+                    Console.WriteLine(tmp[tmp.Length - 2]);
+
+                    if (file.Extension != ".jpg" && file.Extension != ".png" && file.Extension != ".jpeg" && file.Extension != ".bmp" && file.Extension != ".gif"
+                        && file.Extension != ".tiff" && file.Extension != ".jpeg 2000" && file.Extension != ".heic" && file.Extension != ".tif" && file.Extension != ".jpe"
+                        && file.Extension != ".jfif" && file.Extension != ".dib")
+                        continue;
+
+                    if (Regex.IsMatch(tmp[tmp.Length-2], pattern,RegexOptions.IgnoreCase))
                     {
-                        string[] tmp = file.Name.Split(new Char[] { '_', '.' });
-                        images.Add(new Photo_() { Name = file.Name, Path = file.FullName, Position = Int32.Parse(tmp[1]) });
+                        Regex regex = new Regex(pattern);
+                        MatchCollection matches = regex.Matches(tmp[tmp.Length - 2]);
+                        Console.WriteLine(matches[matches.Count - 1].Value);
+                        images.Add(new Photo_() { Name = file.Name, Path = file.FullName, Position = Int32.Parse(matches[matches.Count-1].Value) });
                     }
 
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                Console.WriteLine(ex.Message);
             }
             images_box.ItemsSource = null;
             img.Source = null;
