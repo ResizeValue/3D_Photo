@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Forms;
 using System.IO;
-using System.Windows.Threading;
+
 using System.Threading;
 using MessageBox = System.Windows.MessageBox;
 using System.Text.RegularExpressions;
+using System.Windows.Interop;
 
 namespace _3D_Photo
 {
@@ -26,15 +20,25 @@ namespace _3D_Photo
     /// </summary>
     public partial class MainWindow : Window
     {
+
         List<Photo_> images = new List<Photo_>();
+        Settings settings = new Settings();
         
         int scroll_direction = 0;
         bool auto_scroll_enabled = false;
-        double sens = 50;
+
+        string logo_path = Environment.CurrentDirectory + "\\Resources\\Logo\\logo.png";
         public MainWindow()
         {
             InitializeComponent();
-            
+            Load_Settings();
+        }
+
+        void Load_Settings()
+        {
+            settings.Read_Settings();
+            sens_bar.Value = settings.Sensitivity;
+            watermark_checkbox.IsChecked = settings.Watermark;
         }
 
         void OpenFolder()
@@ -58,6 +62,70 @@ namespace _3D_Photo
                 }
             }
         }
+        
+        BitmapImage Add_Watermark(string path)
+        {
+            System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
+
+            System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
+            graphics.DrawImage(logo, 20f, image.Height - logo.Height - 20, logo.Width, logo.Height);
+            graphics.Dispose();
+
+
+            MemoryStream m = new MemoryStream();
+            image.Save(m, System.Drawing.Imaging.ImageFormat.Jpeg);
+            byte[] arr = m.ToArray();
+            m.Close();
+            MemoryStream stream = new MemoryStream(arr);
+
+            BitmapImage bimage = new BitmapImage();
+            bimage.BeginInit();
+            bimage.StreamSource = stream;
+            bimage.EndInit();
+
+            return bimage;
+        }
+
+        byte[] HTMLBitmapArray(string path)
+        {
+            System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
+
+            if (settings.Watermark)
+            {
+                System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
+                graphics.DrawImage(logo, 20f, image.Height - logo.Height - 20, logo.Width, logo.Height);
+                graphics.Dispose();
+            }
+            else
+            {
+                System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
+                graphics.DrawString("A", new System.Drawing.Font("Arial",1), System.Drawing.Brushes.Transparent,0f,0f);
+                graphics.Dispose();
+            }
+            MemoryStream m = new MemoryStream();
+            image.Save(m, System.Drawing.Imaging.ImageFormat.Jpeg);
+            return m.ToArray();
+        }
+
+        void SaveBitmap(string path, string topath)
+        {
+            System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
+
+            if(settings.Watermark)
+            {
+                System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
+                graphics.DrawImage(logo, 20f, image.Height - logo.Height - 20, logo.Width, logo.Height);
+                graphics.Dispose();
+            }
+            else
+            {
+                System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
+                graphics.DrawImage(image, 0f,0f,0f,0f);
+                graphics.Dispose();
+            }
+
+            image.Save(topath);
+        }
 
         bool Fill_ListBox(string path)
         {
@@ -70,7 +138,6 @@ namespace _3D_Photo
                 {
 
                     string[] tmp = file.Name.Split(new Char[] { '.' });
-                    Console.WriteLine(tmp[tmp.Length - 2]);
 
                     if (file.Extension != ".jpg" && file.Extension != ".png" && file.Extension != ".jpeg" && file.Extension != ".bmp" && file.Extension != ".gif"
                         && file.Extension != ".tiff" && file.Extension != ".jpeg 2000" && file.Extension != ".heic" && file.Extension != ".tif" && file.Extension != ".jpe"
@@ -81,7 +148,6 @@ namespace _3D_Photo
                     {
                         Regex regex = new Regex(pattern);
                         MatchCollection matches = regex.Matches(tmp[tmp.Length - 2]);
-                        Console.WriteLine(matches[matches.Count - 1].Value);
                         images.Add(new Photo_() { Name = file.Name, Path = file.FullName, Position = Int32.Parse(matches[matches.Count-1].Value) });
                     }
 
@@ -102,6 +168,48 @@ namespace _3D_Photo
             return true;
         }
 
+        void Save_LocalModel()
+        {
+            prog_bar.Maximum = images.Count;
+            prog_bar.Value = 0;
+            string cur_dir = Environment.CurrentDirectory;
+            if (!Directory.Exists(cur_dir + "\\Model")) Directory.CreateDirectory(cur_dir + "\\Model");
+            new Thread(() =>
+            {
+                DirectoryInfo info = new DirectoryInfo(cur_dir + "\\Model");
+                foreach (var file in info.GetFiles())
+                {
+                    if (file.Name.StartsWith("loc_"))
+                        file.Delete();
+                }
+
+                foreach (var image in images)
+                {
+                    SaveBitmap(image.Path, cur_dir + "\\Model\\loc_" + image.Name);
+                    SetPorgressBar(1);
+                }
+            })
+            { IsBackground = true }.Start();
+        }
+
+        private void SetPorgressBar(int val)
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke((Action)(() => SetPorgressBar(val)));
+            }
+            else
+            {
+                try
+                {
+                    prog_bar.Value += val;
+                    if (prog_bar.Value == prog_bar.Maximum)
+                        prog_bar.Value = 0;
+                }
+                catch (OperationCanceledException) { }
+            }
+        }
+
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
             OpenFolder();
@@ -110,10 +218,22 @@ namespace _3D_Photo
         private void ListBoxItem_Selected(object sender, RoutedEventArgs e)
         {
             if (auto_scroll_enabled) return;
-            Photo_ photo = ((ListBoxItem)sender).Content as Photo_;
-            img.Source = new BitmapImage(new Uri(photo.Path));
+            Set_Current_Photo();
             ((ListBoxItem)sender).Background = Brushes.BlueViolet;
             
+        }
+
+        void Set_Current_Photo()
+        {
+            try
+            {
+                if (images_box.SelectedIndex == -1) return;
+                if (settings.Watermark && logo != null)
+                    img.Source = Add_Watermark(((Photo_)images_box.SelectedItem).Path);
+                else
+                    img.Source = new BitmapImage(new Uri(((Photo_)images_box.SelectedItem).Path));
+            }
+            catch { }
         }
 
         private void ListBoxItem_Unselected(object sender, RoutedEventArgs e)
@@ -140,7 +260,7 @@ namespace _3D_Photo
         {
             if (click)
             {
-                if(point.X + (100/sens) <= e.GetPosition(img).X)
+                if(point.X + (100/ settings.Sensitivity) <= e.GetPosition(img).X)
                 {
                     if(images_box.SelectedIndex == 0)
                     {
@@ -150,10 +270,10 @@ namespace _3D_Photo
                     {
                         images_box.SelectedIndex -= 1;
                     }
-                    img.Source = new BitmapImage(new Uri(((Photo_)images_box.SelectedItem).Path));
+                    
                     point = e.GetPosition(img);
                 }
-                else if (point.X - (100 / sens) >= e.GetPosition(img).X)
+                else if (point.X - (100 / settings.Sensitivity) >= e.GetPosition(img).X)
                 {
                     if (images_box.SelectedIndex == images_box.Items.Count - 1)
                     {
@@ -163,9 +283,9 @@ namespace _3D_Photo
                     {
                         images_box.SelectedIndex += 1;
                     }
-                    img.Source = new BitmapImage(new Uri(((Photo_)images_box.SelectedItem).Path));
                     point = e.GetPosition(img);
                 }
+                Set_Current_Photo();
             }
         }
 
@@ -193,7 +313,7 @@ namespace _3D_Photo
                 else if (images_box.SelectedIndex == -1) {
                     images_box.SelectedIndex = images_box.Items.Count - 1;
                 }
-                img.Source = new BitmapImage(new Uri(((Photo_)images_box.SelectedItem).Path));
+                Set_Current_Photo();
             }
         }
 
@@ -245,8 +365,54 @@ namespace _3D_Photo
 
         void ExportToHTML(string path)
         {
-            HTML_Program program = new HTML_Program();
-            program.Write_To_File(path, images, sens);
+            prog_bar.Maximum = images.Count + 6;
+            new Thread(() =>
+            {
+                try
+                {
+                    Set_Status("Exporting...");
+                    string photos_string = "";
+                    foreach (var photo in images)
+                    {
+                        photos_string += $"\"data:image/jpg;base64,{Convert.ToBase64String(HTMLBitmapArray(photo.Path))}\",";
+                        SetPorgressBar(1);
+                    }
+                    photos_string = photos_string.Remove(photos_string.Length - 1, 1);
+                    SetPorgressBar(1);
+
+                    Script_Settings script_settings = new Script_Settings()
+                    {
+                        Photos_String = photos_string,
+                        First_Photo = Convert.ToBase64String(HTMLBitmapArray(images[0].Path)),
+                        Sens = settings.Sensitivity
+                    };
+                    HTML_Program program = new HTML_Program();
+                    program.Generate_Script(script_settings);
+
+                    File.WriteAllText(path, program.script);
+                    SetPorgressBar(5);
+                    Set_Status("Success");
+                }
+                catch
+                {
+                    
+                    Set_Status("Failed");
+                }
+            }).Start();
+        }
+
+        void Set_Status(string status)
+        {
+            if (!Dispatcher.CheckAccess())
+                Dispatcher.Invoke((Action)(() => Set_Status(status)));
+            else
+            {
+                try
+                {
+                    status_tb.Text = status;
+                }
+                catch (OperationCanceledException) { }
+            }
         }
 
         void Clear_Scroll()
@@ -299,8 +465,97 @@ namespace _3D_Photo
         }
         private void sens_bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            sens = sens_bar.Value;
-            sens_tb.Text = sens.ToString("0.0");
+            settings.Sensitivity = sens_bar.Value;
+            sens_tb.Text = settings.Sensitivity.ToString("0.0");
+        }
+
+        private void local_model_save_Click(object sender, RoutedEventArgs e)
+        {
+            Save_LocalModel();
+        }
+        void Copy_Logo(string path)
+        {
+            var curdir = Environment.CurrentDirectory;
+            if (!Directory.Exists(curdir + "\\Resources")) Directory.CreateDirectory(curdir + "\\Resources");
+            if (!Directory.Exists(curdir + "\\Resources\\Logo")) Directory.CreateDirectory(curdir + "\\Resources\\Logo");
+
+            var arr = File.ReadAllBytes(path);
+            File.Delete(logo_path);
+            File.WriteAllBytes(curdir + "\\Resources\\Logo\\logo.png", arr);
+
+        }
+        void Read_Logo()
+        {
+            try
+            {
+                logo_img.Source = new BitmapImage(new Uri(logo_path));
+                watermark_checkbox.IsChecked = true;
+            }
+            catch { }
+        }
+        private void chg_logo_btn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                OpenFileDialog dialog = new OpenFileDialog();
+                logo = null;
+                logo_img.Source = null;
+                dialog.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    FileInfo info = new FileInfo(dialog.FileName);
+
+                    logo = null;
+                    logo_img.Source = null;
+
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    Copy_Logo(info.FullName);
+                }
+                logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
+                Read_Logo();
+                Set_Current_Photo();
+            }
+            catch
+            {
+                MessageBox.Show("Ну удалось загрузить изображение!");
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            settings.Save_Settings();
+        }
+        System.Drawing.Image logo;
+        private void watermark_checkbox_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                settings.Watermark = true;
+                logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
+                Read_Logo();
+            }
+            catch
+            {
+               
+            }
+            try
+            {
+                Set_Current_Photo();
+            }
+            catch { }
+        }
+
+        private void watermark_checkbox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                settings.Watermark = false;
+                logo = null;
+                logo_img.Source = null;
+                Set_Current_Photo();
+            }
+            catch { }
         }
     }
 }
