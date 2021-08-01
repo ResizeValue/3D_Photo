@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_3D_Photo"
         mc:Ignorable="d"
-        Title="Wolf Griman 3Dex" MinHeight="500" MinWidth="800">
+        Title="Wolf Griman 3Dex" MinHeight="500" MinWidth="800"
+        Closing="Window_Closing">
     <Window.Resources>
         <Style x:Key="images_item_container" TargetType="ListBoxItem">
             <Setter Property="Background" Value="LightGray"/>
@@ -29,6 +30,12 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="setting_border" TargetType="Border">
+            <Setter Property="Width" Value="auto"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -42,6 +49,8 @@
                       FontSize="16" Click="OpenFolder_Click"></MenuItem>
             <MenuItem x:Name="export_HTML" Header="Экспорт в HTML"  Height="30" BorderThickness="0,0,1,0"
                       FontSize="16" BorderBrush="DarkGray" Click="export_HTML_Click"></MenuItem>
+            <MenuItem x:Name="local_model_save" Header="Сохранить локально"  Height="30" BorderThickness="0,0,1,0"
+                      FontSize="16" BorderBrush="DarkGray" Click="local_model_save_Click"/>
         </Menu>
         <Grid Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
@@ -102,10 +111,12 @@
                     <RowDefinition Height="35"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock HorizontalAlignment="Center"
                                FontSize="24">Настройки</TextBlock>
-                <Border Grid.Row="1" BorderThickness="1" Width="auto" VerticalAlignment="Center" BorderBrush="Gray">
+                <Border Grid.Row="1" BorderThickness="1"
+                       Style="{StaticResource setting_border}">
                     <StackPanel Margin="5">
                         <TextBlock FontSize="16" HorizontalAlignment="Center" 
                                TextWrapping="Wrap">Чувствительность</TextBlock>
@@ -119,7 +130,8 @@
 
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="2" BorderThickness="1,0,1,1" Width="auto" VerticalAlignment="Center" BorderBrush="Gray">
+                <Border Grid.Row="2" BorderThickness="1,0,1,1"
+                        Style="{StaticResource setting_border}">
                     <StackPanel Margin="5">
                         <TextBlock FontSize="16" HorizontalAlignment="Center" 
                                TextWrapping="Wrap">Авто вращение</TextBlock>
@@ -162,16 +174,43 @@
                                 </Image>
                             </Border>
                         </StackPanel>
-                        <!--<CheckBox x:Name="auto_scroll" HorizontalAlignment="Center"
-                              Checked="auto_scroll_Checked"
-                              Unchecked="auto_scroll_Unchecked"
-                              Margin="0,10,0,0"/>-->
                     </StackPanel>
                 </Border>
+                <Border Grid.Row="3"
+                        BorderThickness="1"
+                        Style="{StaticResource setting_border}"
+                        >
+                    <StackPanel>
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Text="Водяной знак"
+                                       FontSize="16"
+                                       Margin="0,0,5,0"/>
+                            <CheckBox x:Name="watermark_checkbox" HorizontalAlignment="Center"
+                                      VerticalAlignment="Bottom"
+                                      Checked="watermark_checkbox_Checked"
+                                      Unchecked="watermark_checkbox_Unchecked"/>
+                        </StackPanel>
+                        <Grid Margin="0,10,0,20">
+                            <Border Background="Gray" Opacity="0.3"/>
+                            <Image Name="logo_img" Height="40" Panel.ZIndex="10" Margin="10"/>
+                        </Grid>
+                        <Button x:Name="chg_logo_btn"
+                                Content="Выбрать файл"
+                                FontSize="16"
+                                Click="chg_logo_btn_Click"/>
+                    </StackPanel>
+                </Border>
+                
             </Grid>
         </Grid>
         <StatusBar Grid.Row="2">
             <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.1</StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar x:Name="prog_bar" Width="250" Height="15"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock x:Name="status_tb" FontSize="10" Width="150"/>
+            </StatusBarItem>
         </StatusBar>
     </Grid>
 </Window>
