@@ -209,7 +209,7 @@
             </Grid>
         </Grid>
         <StatusBar Grid.Row="2">
-            <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.2</StatusBarItem>
+            <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.2.1</StatusBarItem>
             <StatusBarItem>
                 <ProgressBar x:Name="prog_bar" Width="250" Height="15"/>
             </StatusBarItem>
