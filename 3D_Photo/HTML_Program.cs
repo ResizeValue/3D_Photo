@@ -10,15 +10,11 @@ namespace _3D_Photo
     class HTML_Program
     {
 
-        string script;
-        
-        void Generate_Script(List<Photo_> photos, double sens)
+        public string script;
+
+        public void Generate_Script(Script_Settings settings)
         {
-            string photos_string = "";
-            foreach (var photo in photos)
-            {
-                photos_string += $"\"data:image/jpg;base64,{Convert.ToBase64String(File.ReadAllBytes(photo.Path))}\",";
-            }
+
             string arrow = "";
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             using (var stream = assembly.GetManifestResourceStream("_3D_Photo.left_arr.png"))
@@ -28,7 +24,7 @@ namespace _3D_Photo
                 arrow = Convert.ToBase64String(buffer);
             }
 
-            photos_string = photos_string.Remove(photos_string.Length - 1, 1);
+            
             script = $@"<head>
                             <meta charset=""UTF-8"">
                             <meta http-equiv=""X-UA-Compatible"" content=""IE=edge"">
@@ -37,11 +33,11 @@ namespace _3D_Photo
 
                             <script>
                                 
-                                let photos = [{photos_string}];
+                                let photos = [{settings.Photos_String}];
 
                                 let x = 0;
 
-                                var sens = {sens};
+                                var sens = {settings.Sens};
 
                                 let IsScroll = false;
                                 var autoScrollDirection = 0;
@@ -221,7 +217,7 @@ namespace _3D_Photo
                         <body onload=""touch_init()"">
                             <div class=""container"">
                                 <img id=""main_img"" style=""cursor: grab; "" ondragstart=""stopDrag()"" onmouseout=""imgBtnUp()"" onmousedown=""imgBtnDown()""
-                                onmouseup = ""imgBtnUp()"" onmousemove = ""imgMove()"" src=""data:image/jpg;base64,{Convert.ToBase64String(File.ReadAllBytes(photos[0].Path))}"" >
+                                onmouseup = ""imgBtnUp()"" onmousemove = ""imgMove()"" src=""data:image/jpg;base64,{settings.First_Photo}"" >
                             <div class=""auto_container"">
                                     <div id =""auto_text"" >Auto</div>
  
@@ -239,10 +235,11 @@ namespace _3D_Photo
                         </body>";
         }
 
-        public void Write_To_File(string path, List<Photo_> photos, double sens)
-        {
-            Generate_Script(photos, sens);
-            File.WriteAllText(path, script);
-        }
+    }
+    public class Script_Settings
+    {
+        public string Photos_String { get; set; }
+        public string First_Photo { get; set; }
+        public double Sens { get; set; }
     }
 }
