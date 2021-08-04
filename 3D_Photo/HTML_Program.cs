@@ -17,7 +17,7 @@ namespace _3D_Photo
 
             string arrow = "";
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            using (var stream = assembly.GetManifestResourceStream("_3D_Photo.left_arr.png"))
+            using (var stream = assembly.GetManifestResourceStream("_3D_Photo.Arrow_Transp_100.png"))
             {
                 byte[] buffer = new byte[stream.Length];
                 stream.Read(buffer, 0, buffer.Length);
@@ -36,8 +36,10 @@ namespace _3D_Photo
                                 let photos = [{settings.Photos_String}];
 
                                 let x = 0;
+                                
+                                let cur_arrow = ""none"";
 
-                                var sens = {settings.Sens};
+                                var sens = {settings.Sens * 2};
 
                                 let IsScroll = false;
                                 var autoScrollDirection = 0;
@@ -52,17 +54,16 @@ namespace _3D_Photo
                                     if(IsScroll)
                                     stop_Auto_Scroll();
                                     click = true;
-                                    document.getElementById('main_img').style.cursor = ""grabbing"";
+                                    document.getElementById('img_rotate').style.cursor = ""grabbing"";
                                     point = [event.pageX, event.pageY];
                                     }}
-                                    function imgMove()
-                                    {{
-                                        if (!click) return;
+                                function imgMove() {{
+                                    if (!click) return;
 
-                                        if (point[0] - event.pageX > (100/sens)){{
-                                        x++;
-                                        if (x == photos.length) x = 0;
-                                        changeImg();
+                                    if (point[0] - event.pageX > (100/sens)){{
+                                    x++;
+                                    if (x == photos.length) x = 0;
+                                    changeImg();
                                     }}
                                     if(point[0] - event.pageX < -(100/sens)){{
                                         x--;
@@ -89,26 +90,33 @@ namespace _3D_Photo
                                 function imgBtnUp()
                                 {{
                                     click = false;
-                                    document.getElementById('main_img').style.cursor = ""grab"";
+                                    document.getElementById('img_rotate').style.cursor = ""grab"";
                                     event.stopPropagation();
                                 }}
 
                                 function stop_Auto_Scroll(){{
                                     autoScrollDirection = 0;
                                     IsScroll = false;
-                                    document.getElementById(""auto_text"").style.color = ""black"";
+                                    cur_arrow = 'none';
+                                    document.getElementById(""auto_text"").style.opacity = 0.5;
+                                    document.getElementById(""left"").style.opacity = 0.5;
+                                    document.getElementById(""right"").style.opacity = 0.5;
                                     clearInterval(auto_scroll_timer);
                                 }}
 
                                 function arrow_Click()
                                 {{
                                     stop_Auto_Scroll();
-                                    document.getElementById(""auto_text"").style.color = ""blue"";
+                                    document.getElementById(""auto_text"").style.opacity = 1.0;
                                     if(event.currentTarget.id == ""left""){{
                                         autoScrollDirection = 1;
+                                        cur_arrow = 'left';
+                                        document.getElementById(""left"").style.opacity = 1.0;
                                     }}
                                     else{{
                                         autoScrollDirection = -1;
+                                        cur_arrow = 'right';
+                                        document.getElementById(""right"").style.opacity = 1.0;
                                     }}
                                     IsScroll = true;
                                     auto_scroll_timer = setInterval(()=>{{
@@ -153,6 +161,16 @@ namespace _3D_Photo
                                 function touchcancel(){{
                                     is_touched = false;
                                 }}
+
+                                function arrow_mouseenter(arrow){{
+                                    if(arrow == ""left"") document.getElementById(""left"").style.opacity = 1.0;
+                                    if(arrow == ""right"") document.getElementById(""right"").style.opacity = 1.0;
+                                }}
+
+                                function arrow_mouseleave(arrow){{
+                                    if(arrow == ""left"" && cur_arrow != 'left') document.getElementById(""left"").style.opacity = 0.5;
+                                    if(arrow == ""right""&& cur_arrow != 'right') document.getElementById(""right"").style.opacity = 0.5;
+                                }}
                             </script>
 
                             <style>
@@ -166,19 +184,24 @@ namespace _3D_Photo
                                     display: flex;
                                     flex-direction: column;
                                     justify-items: center;
-                                    margin-left: -160px;
+                                    margin-left: -155px;
                                     z-index: 2;
                                     align-self: flex-end;
-                                    background-color: rgba(159, 89, 206, 0.199);
+                                    background-color: {(settings.Auto_Background == true ? "rgba(126, 126, 126, 0.2)" : "transparent")};
+                                    padding: 5px;
                                     margin-bottom: 10px;
-                                    border-radius: 25%;
+                                    border-radius: 7px;
                                 }}
                                 
                                 #auto_text{{
                                     cursor:default;
                                     text-align: center;
-                                    font-size: 40px;
-                                    font-weight: 900;
+                                    font-size: 20px;
+                                    font-weight: 600;
+                                    color: white;
+                                    opacity: 0.5;
+                                    font-family:Arial, Helvetica, sans-serif;
+                                    -webkit-text-stroke: 1.0px gray;
                                 }}
 
                                 @media screen and (max-width: 600px) {{
@@ -198,36 +221,52 @@ namespace _3D_Photo
                                 }}
 
                                 .arrow_container{{
+                                    display: flex;
+                                    flex-direction: row;
+                                    justify-content: center;
+                                    
                                     background-color: transparent;
-                                    border-radius: 25%;
                                 }}
                                 .arrow{{
-                                    width: 75;
-                                    height: 40;
+                                    width: 35;
+                                    height: 20;
+                                    padding-left: 20px;
+                                    margin-top: 10px;
+                                    margin-bottom: 5px;
                                 }}
                                 .arrow_back{{
                                     transform: rotate(180deg);
                                 }}
 
-                                .arrow_container:hover{{
-                                    border: 1px solid black;
+                                #img_rotate{{
+                                    width: 100%;
+                                    height: 100%;
+                                    position: absolute;
+                                    left: 0;
+                                    top: 0;
+                                    z-index: 2;
+                                    background: transparent;
                                 }}
+                                
                             </style>
                         </head>
                         <body onload=""touch_init()"">
+                            <div id=""img_rotate"" ondragstart=""stopDrag()"" onmouseout=""imgBtnUp()"" onmousedown=""imgBtnDown()""
+                                onmouseup = ""imgBtnUp()"" onmousemove = ""imgMove()"" style = ""cursor: grab;""></div>
                             <div class=""container"">
-                                <img id=""main_img"" style=""cursor: grab; "" ondragstart=""stopDrag()"" onmouseout=""imgBtnUp()"" onmousedown=""imgBtnDown()""
-                                onmouseup = ""imgBtnUp()"" onmousemove = ""imgMove()"" src=""data:image/jpg;base64,{settings.First_Photo}"" >
+                                <img id=""main_img"" src=""data:image/jpg;base64,{settings.First_Photo}"" >
                             <div class=""auto_container"">
-                                    <div id =""auto_text"" >Auto</div>
+                                    <div id =""auto_text"" >AUTOROTATE</div>
  
-                                     <div style = ""display: flex; flex-direction: row;"">
+                                     <div class=""arrow_container"" >
   
-                                          <div id = ""left"" class=""arrow_container"" onclick=""arrow_Click()"">
-                                            <img class=""arrow"" src=""data:image/png;base64,{arrow}"">
-                                        </div>
-                                        <div id = ""right"" class=""arrow_container"" onclick=""arrow_Click()"">
+                                          <div id = ""left"" class=""arrow_container"" onmouseenter=""arrow_mouseenter('left')""
+                                            onmouseleave=""arrow_mouseleave('left')"" onclick=""arrow_Click()"" style=""opacity:0.5"">
                                             <img class=""arrow arrow_back"" src=""data:image/png;base64,{arrow}"">
+                                        </div>
+                                        <div id = ""right"" class=""arrow_container"" onmouseenter=""arrow_mouseenter('right')""
+                                            onmouseleave=""arrow_mouseleave('right')"" onclick=""arrow_Click()"" style=""opacity:0.5"">
+                                            <img class=""arrow"" src=""data:image/png;base64,{arrow}"">
                                         </div>
                                     </div>
                                 </div>
@@ -239,6 +278,7 @@ namespace _3D_Photo
     public class Script_Settings
     {
         public string Photos_String { get; set; }
+        public bool Auto_Background { get; set; }
         public string First_Photo { get; set; }
         public double Sens { get; set; }
     }

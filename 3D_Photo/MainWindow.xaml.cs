@@ -39,6 +39,7 @@ namespace _3D_Photo
             settings.Read_Settings();
             sens_bar.Value = settings.Sensitivity;
             watermark_checkbox.IsChecked = settings.Watermark;
+            background_cb.IsChecked = settings.Auto_Background;
         }
 
         void OpenFolder()
@@ -391,7 +392,8 @@ namespace _3D_Photo
                     {
                         Photos_String = photos_string,
                         First_Photo = Convert.ToBase64String(HTMLBitmapArray(images[0].Path)),
-                        Sens = settings.Sensitivity
+                        Sens = settings.Sensitivity,
+                        Auto_Background = settings.Auto_Background
                     };
                     HTML_Program program = new HTML_Program();
                     program.Generate_Script(script_settings);
@@ -472,8 +474,8 @@ namespace _3D_Photo
         }
         private void sens_bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            settings.Sensitivity = sens_bar.Value;
-            sens_tb.Text = settings.Sensitivity.ToString("0.0");
+            settings.Sensitivity = Convert.ToInt32(sens_bar.Value);
+            sens_tb.Text = settings.Sensitivity.ToString();
         }
 
         private void local_model_save_Click(object sender, RoutedEventArgs e)
@@ -570,5 +572,27 @@ namespace _3D_Photo
             }
             catch { }
         }
+
+        private void background_cb_Checked(object sender, RoutedEventArgs e)
+        {
+            settings.Auto_Background = true;
+        }
+
+        private void background_cb_Unchecked(object sender, RoutedEventArgs e)
+        {
+            settings.Auto_Background = false;
+        }
+
+        //private void sens_tb_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    int val ;
+        //    if(int.TryParse(sens_tb.Text, out val))
+        //    {
+        //        if(val < 100 && val > 50)
+        //        {
+
+        //        }
+        //    }
+        //}
     }
 }

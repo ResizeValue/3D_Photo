@@ -118,5 +118,8 @@
   <ItemGroup>
     <Resource Include="Resources\left_arr.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Arrow_Transp_100.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
