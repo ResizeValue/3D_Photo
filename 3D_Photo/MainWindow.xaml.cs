@@ -23,7 +23,7 @@ namespace _3D_Photo
 
         List<Photo_> images = new List<Photo_>();
         Settings settings = new Settings();
-        
+
         int scroll_direction = 0;
         bool auto_scroll_enabled = false;
 
@@ -46,7 +46,7 @@ namespace _3D_Photo
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
 
-            if(dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 if (Fill_ListBox(dialog.SelectedPath))
                 {
@@ -63,7 +63,7 @@ namespace _3D_Photo
                 }
             }
         }
-        
+
         BitmapImage Add_Watermark(string path)
         {
             System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
@@ -91,7 +91,7 @@ namespace _3D_Photo
         {
             System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
 
-            if (settings.Watermark)
+            if (settings.Watermark && logo != null)
             {
                 System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
                 graphics.DrawImage(logo, 20f, image.Height - logo.Height - 20, logo.Width, logo.Height);
@@ -100,7 +100,7 @@ namespace _3D_Photo
             else
             {
                 System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
-                graphics.DrawString("A", new System.Drawing.Font("Arial",1), System.Drawing.Brushes.Transparent,0f,0f);
+                graphics.DrawString("A", new System.Drawing.Font("Arial", 1), System.Drawing.Brushes.Transparent, 0f, 0f);
                 graphics.Dispose();
             }
             MemoryStream m = new MemoryStream();
@@ -112,7 +112,7 @@ namespace _3D_Photo
         {
             System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
 
-            if(settings.Watermark)
+            if (settings.Watermark && logo != null)
             {
                 System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
                 graphics.DrawImage(logo, 20f, image.Height - logo.Height - 20, logo.Width, logo.Height);
@@ -121,7 +121,7 @@ namespace _3D_Photo
             else
             {
                 System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
-                graphics.DrawImage(image, 0f,0f,0f,0f);
+                graphics.DrawImage(image, 0f, 0f, 0f, 0f);
                 graphics.Dispose();
             }
 
@@ -145,16 +145,16 @@ namespace _3D_Photo
                         && file.Extension != ".jfif" && file.Extension != ".dib")
                         continue;
 
-                    if (Regex.IsMatch(tmp[tmp.Length-2], pattern,RegexOptions.IgnoreCase))
+                    if (Regex.IsMatch(tmp[tmp.Length - 2], pattern, RegexOptions.IgnoreCase))
                     {
                         Regex regex = new Regex(pattern);
                         MatchCollection matches = regex.Matches(tmp[tmp.Length - 2]);
-                        images.Add(new Photo_() { Name = file.Name, Path = file.FullName, Position = Int32.Parse(matches[matches.Count-1].Value) });
+                        images.Add(new Photo_() { Name = file.Name, Path = file.FullName, Position = Int32.Parse(matches[matches.Count - 1].Value) });
                     }
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -162,7 +162,7 @@ namespace _3D_Photo
             img.Source = null;
             if (images.Count < 1) return false;
 
-            
+
             images.Sort(delegate (Photo_ photo1, Photo_ photo2) { return photo1.Position.CompareTo(photo2.Position); });
             images_box.ItemsSource = images;
             images_box.SelectedIndex = 0;
@@ -171,26 +171,33 @@ namespace _3D_Photo
 
         void Save_LocalModel()
         {
-            prog_bar.Maximum = images.Count;
-            prog_bar.Value = 0;
-            string cur_dir = Environment.CurrentDirectory;
-            if (!Directory.Exists(cur_dir + "\\Model")) Directory.CreateDirectory(cur_dir + "\\Model");
-            new Thread(() =>
+            try
             {
-                DirectoryInfo info = new DirectoryInfo(cur_dir + "\\Model");
-                foreach (var file in info.GetFiles())
+                prog_bar.Maximum = images.Count;
+                prog_bar.Value = 0;
+                string cur_dir = Environment.CurrentDirectory;
+                if (!Directory.Exists(cur_dir + "\\Model")) Directory.CreateDirectory(cur_dir + "\\Model");
+                new Thread(() =>
                 {
-                    if (file.Name.StartsWith("loc_"))
-                        file.Delete();
-                }
+                    DirectoryInfo info = new DirectoryInfo(cur_dir + "\\Model");
+                    foreach (var file in info.GetFiles())
+                    {
+                        if (file.Name.StartsWith("loc_"))
+                            file.Delete();
+                    }
 
-                foreach (var image in images)
-                {
-                    SaveBitmap(image.Path, cur_dir + "\\Model\\loc_" + image.Name);
-                    SetPorgressBar(1);
-                }
-            })
-            { IsBackground = true }.Start();
+                    foreach (var image in images)
+                    {
+                        SaveBitmap(image.Path, cur_dir + "\\Model\\loc_" + image.Name);
+                        SetPorgressBar(1);
+                    }
+                })
+                { IsBackground = true }.Start();
+            }
+            catch
+            {
+                Set_Status("Failed");
+            }
         }
 
         private void SetPorgressBar(int val)
@@ -221,7 +228,7 @@ namespace _3D_Photo
             if (auto_scroll_enabled) return;
             Set_Current_Photo();
             ((ListBoxItem)sender).Background = Brushes.BlueViolet;
-            
+
         }
 
         void Set_Current_Photo()
@@ -246,7 +253,7 @@ namespace _3D_Photo
 
         private void img_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            
+
             if (auto_scroll_enabled) Clear_Scroll();
             click = true;
             point = e.GetPosition(img);
@@ -261,9 +268,9 @@ namespace _3D_Photo
         {
             if (click)
             {
-                if(point.X + (100/ settings.Sensitivity) <= e.GetPosition(img).X)
+                if (point.X + (100 / settings.Sensitivity) <= e.GetPosition(img).X)
                 {
-                    if(images_box.SelectedIndex == 0)
+                    if (images_box.SelectedIndex == 0)
                     {
                         images_box.SelectedIndex = images_box.Items.Count - 1;
                     }
@@ -271,7 +278,7 @@ namespace _3D_Photo
                     {
                         images_box.SelectedIndex -= 1;
                     }
-                    
+
                     point = e.GetPosition(img);
                 }
                 else if (point.X - (100 / settings.Sensitivity) >= e.GetPosition(img).X)
@@ -308,10 +315,12 @@ namespace _3D_Photo
             else
             {
                 images_box.SelectedIndex += scroll_direction;
-                if (images_box.SelectedIndex == images_box.Items.Count-1) { 
+                if (images_box.SelectedIndex == images_box.Items.Count - 1)
+                {
                     images_box.SelectedIndex = 0;
                 }
-                else if (images_box.SelectedIndex == -1) {
+                else if (images_box.SelectedIndex == -1)
+                {
                     images_box.SelectedIndex = images_box.Items.Count - 1;
                 }
                 Set_Current_Photo();
@@ -325,7 +334,7 @@ namespace _3D_Photo
                 Print_Image(0);
                 Thread.Sleep(40);
             }
-           
+
         }
 
         private void auto_scroll_Disabled()
@@ -359,7 +368,8 @@ namespace _3D_Photo
                     ExportToHTML(dialog.FileName);
                 }
             }
-            catch {
+            catch
+            {
                 MessageBox.Show("Ошибка при сохранении файла! Проверьте количество свободного места на диске.");
             }
         }
@@ -397,7 +407,7 @@ namespace _3D_Photo
                 }
                 catch
                 {
-                    
+
                     Set_Status("Failed");
                 }
             }).Start();
@@ -491,9 +501,16 @@ namespace _3D_Photo
             try
             {
                 logo_img.Source = new BitmapImage(new Uri(logo_path));
+                noimg_tb.Visibility = Visibility.Hidden;
                 watermark_checkbox.IsChecked = true;
             }
             catch { }
+        }
+        void Clear_logo()
+        {
+            noimg_tb.Visibility = Visibility.Visible;
+            logo = null;
+            logo_img.Source = null;
         }
         private void chg_logo_btn_Click(object sender, RoutedEventArgs e)
         {
@@ -507,15 +524,14 @@ namespace _3D_Photo
                 {
                     FileInfo info = new FileInfo(dialog.FileName);
 
-                    logo = null;
-                    logo_img.Source = null;
+                    Clear_logo();
 
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                     Copy_Logo(info.FullName);
+                    logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
+                    Read_Logo();
                 }
-                logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
-                Read_Logo();
                 Set_Current_Photo();
             }
             catch
@@ -534,12 +550,13 @@ namespace _3D_Photo
             try
             {
                 settings.Watermark = true;
+                logo_img.Opacity = 1;
                 logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
                 Read_Logo();
             }
             catch
             {
-               
+
             }
             try
             {
@@ -553,8 +570,7 @@ namespace _3D_Photo
             try
             {
                 settings.Watermark = false;
-                logo = null;
-                logo_img.Source = null;
+                logo_img.Opacity = 0.7;
                 Set_Current_Photo();
             }
             catch { }
