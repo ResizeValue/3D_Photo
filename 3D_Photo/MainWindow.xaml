@@ -49,7 +49,7 @@
                       FontSize="16" Click="OpenFolder_Click"></MenuItem>
             <MenuItem x:Name="export_HTML" Header="Экспорт в HTML"  Height="30" BorderThickness="0,0,1,0"
                       FontSize="16" BorderBrush="DarkGray" Click="export_HTML_Click"></MenuItem>
-            <MenuItem x:Name="local_model_save" Header="Сохранить модель локально"  Height="30" BorderThickness="0,0,1,0"
+            <MenuItem x:Name="local_model_save" Header="Сохранить локально"  Height="30" BorderThickness="0,0,1,0"
                       FontSize="16" BorderBrush="DarkGray" Click="local_model_save_Click"/>
         </Menu>
         <Grid Grid.Row="1" VerticalAlignment="Stretch">
@@ -208,11 +208,6 @@
                         </StackPanel>
                         <Grid Margin="0,10,0,20">
                             <Border Background="Gray" Opacity="0.3"/>
-                            <TextBlock x:Name="noimg_tb" Text="No image" FontSize="18"
-                                           Foreground="Black"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Center"
-                                           Opacity="0.7"/>
                             <Image Name="logo_img" Height="40" Panel.ZIndex="10" Margin="10"/>
                         </Grid>
                         <Button x:Name="chg_logo_btn"

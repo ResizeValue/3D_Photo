@@ -91,7 +91,7 @@ namespace _3D_Photo
         {
             System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
 
-            if (settings.Watermark && logo != null)
+            if (settings.Watermark)
             {
                 System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
                 graphics.DrawImage(logo, 20f, image.Height - logo.Height - 20, logo.Width, logo.Height);
@@ -112,7 +112,7 @@ namespace _3D_Photo
         {
             System.Drawing.Image image = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(path);
 
-            if(settings.Watermark && logo != null)
+            if(settings.Watermark)
             {
                 System.Drawing.Graphics graphics = System.Drawing.Graphics.FromImage(image);
                 graphics.DrawImage(logo, 20f, image.Height - logo.Height - 20, logo.Width, logo.Height);
@@ -171,33 +171,26 @@ namespace _3D_Photo
 
         void Save_LocalModel()
         {
-            try
+            prog_bar.Maximum = images.Count;
+            prog_bar.Value = 0;
+            string cur_dir = Environment.CurrentDirectory;
+            if (!Directory.Exists(cur_dir + "\\Model")) Directory.CreateDirectory(cur_dir + "\\Model");
+            new Thread(() =>
             {
-                prog_bar.Maximum = images.Count;
-                prog_bar.Value = 0;
-                string cur_dir = Environment.CurrentDirectory;
-                if (!Directory.Exists(cur_dir + "\\Model")) Directory.CreateDirectory(cur_dir + "\\Model");
-                new Thread(() =>
+                DirectoryInfo info = new DirectoryInfo(cur_dir + "\\Model");
+                foreach (var file in info.GetFiles())
                 {
-                    DirectoryInfo info = new DirectoryInfo(cur_dir + "\\Model");
-                    foreach (var file in info.GetFiles())
-                    {
-                        if (file.Name.StartsWith("loc_"))
-                            file.Delete();
-                    }
+                    if (file.Name.StartsWith("loc_"))
+                        file.Delete();
+                }
 
-                    foreach (var image in images)
-                    {
-                        SaveBitmap(image.Path, cur_dir + "\\Model\\loc_" + image.Name);
-                        SetPorgressBar(1);
-                    }
-                })
-                { IsBackground = true }.Start();
-            }
-            catch
-            {
-                Set_Status("Failed");
-            }
+                foreach (var image in images)
+                {
+                    SaveBitmap(image.Path, cur_dir + "\\Model\\loc_" + image.Name);
+                    SetPorgressBar(1);
+                }
+            })
+            { IsBackground = true }.Start();
         }
 
         private void SetPorgressBar(int val)
@@ -498,16 +491,9 @@ namespace _3D_Photo
             try
             {
                 logo_img.Source = new BitmapImage(new Uri(logo_path));
-                noimg_tb.Visibility = Visibility.Hidden;
                 watermark_checkbox.IsChecked = true;
             }
             catch { }
-        }
-        void Clear_logo()
-        {
-            noimg_tb.Visibility = Visibility.Visible;
-            logo = null;
-            logo_img.Source = null;
         }
         private void chg_logo_btn_Click(object sender, RoutedEventArgs e)
         {
@@ -521,14 +507,15 @@ namespace _3D_Photo
                 {
                     FileInfo info = new FileInfo(dialog.FileName);
 
-                    Clear_logo();
+                    logo = null;
+                    logo_img.Source = null;
 
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                     Copy_Logo(info.FullName);
-                    logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
-                    Read_Logo();
                 }
+                logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
+                Read_Logo();
                 Set_Current_Photo();
             }
             catch
@@ -547,7 +534,6 @@ namespace _3D_Photo
             try
             {
                 settings.Watermark = true;
-                logo_img.Opacity = 1;
                 logo = (System.Drawing.Image)System.Drawing.Bitmap.FromFile(logo_path);
                 Read_Logo();
             }
@@ -567,7 +553,8 @@ namespace _3D_Photo
             try
             {
                 settings.Watermark = false;
-                logo_img.Opacity = 0.7;
+                logo = null;
+                logo_img.Source = null;
                 Set_Current_Photo();
             }
             catch { }
