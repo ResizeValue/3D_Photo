@@ -17,7 +17,8 @@ namespace _3D_Photo
 
     public class Settings
     {
-        public double Sensitivity { get; set; }
+        public int Sensitivity { get; set; }
+        public bool Auto_Background { get; set; }
         public bool Watermark { get; set; }
 
         public void Save_Settings()
@@ -38,13 +39,15 @@ namespace _3D_Photo
                 {
                     Sensitivity = set.Sensitivity;
                     Watermark = set.Watermark;
+                    Auto_Background = set.Auto_Background;
                 }
             }
         }
         public void Set_Default_Settings()
         {
-            Sensitivity = 50.0;
+            Sensitivity = 50;
             Watermark = false;
+            Auto_Background = false;
         }
     }
 }

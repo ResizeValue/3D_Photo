@@ -112,6 +112,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock HorizontalAlignment="Center"
                                FontSize="24">Настройки</TextBlock>
@@ -122,10 +123,12 @@
                                TextWrapping="Wrap">Чувствительность</TextBlock>
                         <TextBlock HorizontalAlignment="Center"
                                    FontSize="16" Text="50"
-                                   Name="sens_tb"/>
+                                   Name="sens_tb"
+                                   Margin="5"
+                                   />
                         <Slider x:Name="sens_bar"  Margin="10,0,10,0"
                                 ValueChanged="sens_bar_ValueChanged"
-                                Minimum="1" Maximum="100"
+                                Minimum="50" Maximum="100"
                                 Value="50"/>
 
                     </StackPanel>
@@ -135,6 +138,18 @@
                     <StackPanel Margin="5">
                         <TextBlock FontSize="16" HorizontalAlignment="Center" 
                                TextWrapping="Wrap">Авто вращение</TextBlock>
+                        <StackPanel Margin="5" 
+                                    HorizontalAlignment="Center"
+                                    Orientation="Horizontal">
+                            <TextBlock Text="Затемнить фон"
+                                   FontSize="16"
+                                   VerticalAlignment="Center"/>
+                            <CheckBox x:Name="background_cb"
+                                  Margin="5,0,0,0"
+                                  VerticalAlignment="Bottom"
+                                      Checked="background_cb_Checked"
+                                      Unchecked="background_cb_Unchecked"/>
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Border x:Name="left_scroll"
                                     Margin="5,5,10,5" 
@@ -173,6 +188,7 @@
                                     </Image.RenderTransform>
                                 </Image>
                             </Border>
+
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -200,11 +216,13 @@
                                 Click="chg_logo_btn_Click"/>
                     </StackPanel>
                 </Border>
+
                 
+
             </Grid>
         </Grid>
         <StatusBar Grid.Row="2">
-            <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.1</StatusBarItem>
+            <StatusBarItem Opacity="0.7" FontSize="10">Version: 1.2.2</StatusBarItem>
             <StatusBarItem>
                 <ProgressBar x:Name="prog_bar" Width="250" Height="15"/>
             </StatusBarItem>
