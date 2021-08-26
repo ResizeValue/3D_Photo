@@ -128,7 +128,7 @@ namespace _3D_Photo
                                 }}
 
                                 function touch_init(){{
-                                    var el = document.getElementById(""main_img"");
+                                    var el = document.getElementById(""img_rotate"");
                                     el.addEventListener(""touchstart"", touchstart, false);
                                     el.addEventListener(""touchcancel"", imgBtnUp, false);
                                     el.addEventListener(""touchmove"", touchmove, false);
@@ -136,6 +136,9 @@ namespace _3D_Photo
 
                                 let is_touched = false
                                 function touchstart(){{
+                                    event.preventDefault();
+                                    if(IsScroll)
+                                    stop_Auto_Scroll();
                                     var str = event.changedTouches;
                                     var touch = str[str.length-1];
                                     point = [touch.pageX,touch.pageY];
@@ -143,6 +146,7 @@ namespace _3D_Photo
                                 }}
 
                                 function touchmove(){{
+                                    event.preventDefault();
                                     var str = event.changedTouches;
                                     var touch = str[str.length-1];
                                     if (point[0] - touch.pageX > (100/sens)){{
@@ -159,6 +163,7 @@ namespace _3D_Photo
                                 }}
 
                                 function touchcancel(){{
+                                    event.preventDefault();
                                     is_touched = false;
                                 }}
 
@@ -177,6 +182,17 @@ namespace _3D_Photo
                                 .container{{
                                     display: flex;
 
+                                    justify-content: center;
+                                }}
+
+                                main{{
+                                    height: max-content;
+                                    padding-right: 10px;
+                                }}
+
+                                body{{
+                                    display: flex;
+                                    align-items: center;
                                     justify-content: center;
                                 }}
 
@@ -204,19 +220,14 @@ namespace _3D_Photo
                                     -webkit-text-stroke: 1.0px gray;
                                 }}
 
-                                @media screen and (max-width: 600px) {{
-                                    #main_img{{
-                                        width: 475px;
-                                    }}
-                                }}
-                                @media screen and (max-width: 400px) {{
+                                @media screen and (max-width: 800px) {{
                                     #main_img{{
                                         width: 100%;
+                                        height: auto;
                                     }}
-                                }}
-                                @media screen and (max-height: 800px) {{
-                                    #main_img{{
-                                        height: 600px;
+                                    body{{
+                                        margin-left: 0px !important;
+                                        padding: 0px !important;
                                     }}
                                 }}
 
@@ -251,26 +262,28 @@ namespace _3D_Photo
                             </style>
                         </head>
                         <body onload=""touch_init()"">
-                            <div id=""img_rotate"" ondragstart=""stopDrag()"" onmouseout=""imgBtnUp()"" onmousedown=""imgBtnDown()""
-                                onmouseup = ""imgBtnUp()"" onmousemove = ""imgMove()"" style = ""cursor: grab;""></div>
-                            <div class=""container"">
-                                <img id=""main_img"" src=""data:image/jpg;base64,{settings.First_Photo}"" >
-                            <div class=""auto_container"">
-                                    <div id =""auto_text"" >AUTOROTATE</div>
+                            <main>
+                                <div id=""img_rotate"" ondragstart=""stopDrag()"" onmouseout=""imgBtnUp()"" onmousedown=""imgBtnDown()""
+                                    onmouseup = ""imgBtnUp()"" onmousemove = ""imgMove()"" style = ""cursor: grab;""></div>
+                                <div class=""container"">
+                                    <img id=""main_img"" src=""data:image/jpg;base64,{settings.First_Photo}"" >
+                                <div class=""auto_container"">
+                                        <div id =""auto_text"" >AUTOROTATE</div>
  
-                                     <div class=""arrow_container"" >
+                                         <div class=""arrow_container"" >
   
-                                          <div id = ""left"" class=""arrow_container"" onmouseenter=""arrow_mouseenter('left')""
-                                            onmouseleave=""arrow_mouseleave('left')"" onclick=""arrow_Click()"" style=""opacity:0.5"">
-                                            <img class=""arrow arrow_back"" src=""data:image/png;base64,{arrow}"">
-                                        </div>
-                                        <div id = ""right"" class=""arrow_container"" onmouseenter=""arrow_mouseenter('right')""
-                                            onmouseleave=""arrow_mouseleave('right')"" onclick=""arrow_Click()"" style=""opacity:0.5"">
-                                            <img class=""arrow"" src=""data:image/png;base64,{arrow}"">
+                                              <div id = ""left"" class=""arrow_container"" onmouseenter=""arrow_mouseenter('left')""
+                                                onmouseleave=""arrow_mouseleave('left')"" onclick=""arrow_Click()"" style=""opacity:0.5"">
+                                                <img class=""arrow arrow_back"" src=""data:image/png;base64,{arrow}"">
+                                            </div>
+                                            <div id = ""right"" class=""arrow_container"" onmouseenter=""arrow_mouseenter('right')""
+                                                onmouseleave=""arrow_mouseleave('right')"" onclick=""arrow_Click()"" style=""opacity:0.5"">
+                                                <img class=""arrow"" src=""data:image/png;base64,{arrow}"">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </main>
                         </body>";
         }
 
